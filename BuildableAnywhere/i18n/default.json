@@ -1,0 +1,16 @@
+{
+
+	"Menu.IslandWest.DisplayName": "Ginger Island Farm",
+    "Menu.Beach.DisplayName": "Beach",
+	"Menu.Town.DisplayName": "Pelican Town",
+	"Menu.Forest.DisplayName": "Forest",
+	"Menu.Woods.DisplayName": "Secret Woods",
+	"Menu.Mountain.DisplayName": "Mountain",
+	"Menu.Desert.DisplayName": "Calico Desert",
+	"Menu.Custom_VolcanicSummit.DisplayName": "Summit Farm",
+	"Menu.Custom_Pasture.DisplayName": "Pasture Farm",
+
+
+	"GMCM.AllowBuildingInSlimeArea.Title": "Allow building in the slime area",
+	"GMCM.AllowBuildingInSlimeArea.Tooltip": "Defines whether or not to allow building in the slime area."
+}

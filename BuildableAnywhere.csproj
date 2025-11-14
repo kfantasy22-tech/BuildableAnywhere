@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<ProjectName>Buildable Anywhere</ProjectName>
+		<AssemblyName>BuildableAnywhere</AssemblyName>
+        <RootNamespace>BuildableAnywhere</RootNamespace>
+		<Version>1.0.0</Version>
+		<TargetFramework>net6.0</TargetFramework>
+		<EnableHarmony>true</EnableHarmony>
+        <OutputPath>bin\$(Configuration)\</OutputPath>
+	</PropertyGroup>
+	<ItemGroup>
+    <!-- Referensi SMAPI -->
+    <Reference Include="StardewModdingAPI">
+      <HintPath>BuildableAnywhere\refs\PC\StardewModdingAPI.dll</HintPath>
+    </Reference>
+
+    <!-- Referensi Stardew Valley utama -->
+    <Reference Include="Stardew Valley">
+      <HintPath>BuildableAnywhere\refs\PC\StardewValley.dll</HintPath>
+    </Reference>
+
+    <Reference Include="Stardew Valley.GameData">
+      <HintPath>BuildableAnywhere\refs\PC\StardewValley.GameData.dll</HintPath>
+    </Reference>
+
+    <!-- Referensi lainnya yang dibutuhkan -->
+    <Reference Include="Microsoft.Xna.Framework">
+      <HintPath>BuildableAnywhere\refs\PC\MonoGame.Framework.dll</HintPath>
+    </Reference>
+
+    <Reference Include="xTile">
+      <HintPath>BuildableAnywhere\refs\PC\xTile.dll</HintPath>
+    </Reference>
+
+    <Reference Include="Harmony">
+      <HintPath>BuildableAnywhere\refs\PC\0Harmony.dll</HintPath>
+    </Reference>
+
+    <Reference Include="SMAPI.Toolkit.CoreInterfaces">
+      <HintPath>BuildableAnywhere\refs\PC\SMAPI.Toolkit.CoreInterfaces.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

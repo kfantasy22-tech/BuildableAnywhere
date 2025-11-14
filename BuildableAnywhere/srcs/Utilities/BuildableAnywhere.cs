@@ -1,0 +1,202 @@
+using System.Collections.Generic;
+using System.Reflection;
+using Microsoft.Xna.Framework;
+using StardewModdingAPI.Events;
+using StardewValley;
+using StardewValley.GameData.Locations;
+using StardewValley.Locations;
+using StardewValley.Buildings;
+using xTile.Layers;
+
+namespace BuildableAnywhere.Utilities
+{
+    internal class BuildableAnywhereUtility
+    {
+        public static void MakeAlwaysActive(AssetRequestedEventArgs e)
+        {
+            if (e.NameWithoutLocale.IsEquivalentTo("Data/Locations"))
+            {
+                e.Edit(asset =>
+                {
+                    var data = asset.AsDictionary<string, LocationData>().Data;
+                    foreach (string locationName in BuildableLocation.All)
+                    {
+                        if (data.TryGetValue(locationName, out var loc))
+                        {
+                            loc.CreateOnLoad ??= new();
+                            loc.CreateOnLoad.AlwaysActive = true;
+                        }
+                    }
+
+                });
+            }
+        }
+        public static void MakeBuildable()
+        {
+            foreach (string locationName in BuildableLocation.All)
+            {
+                GameLocation targetLocation = Game1.getLocationFromName(locationName);
+                if (targetLocation == null)
+                    continue;
+
+                if (!Game1.player.hasOrWillReceiveMail("Island_UpgradeHouse"))
+                    continue;
+
+                if (!targetLocation.HasMapPropertyWithValue("CanBuildHere"))
+                {
+                    targetLocation.Map.Properties.Add("CanBuildHere", "T");
+
+                    if (locationName == "IslandWest")
+                    {
+                        MakeInaccessibleAreasUnbuildable();
+                        MakeFarmAreaBuildable();
+                        UpdateSlimeArea();
+                    }
+                }
+            }
+        }
+
+        private static void MakeInaccessibleAreasUnbuildable()
+        {
+            GameLocation location = Game1.getLocationFromName("IslandWest");
+
+            if (location is not null)
+            {
+                HashSet<Point> tiles = GetInaccessibleAreasTiles();
+
+                foreach (Point tile in tiles)
+                {
+                    location.setTileProperty(tile.X, tile.Y, "Back", "Buildable", "f");
+                }
+            }
+        }
+
+        private static void MakeFarmAreaBuildable()
+        {
+            GameLocation location = Game1.getLocationFromName("IslandWest");
+
+            if (location is not null)
+            {
+                HashSet<Point> tiles = GetFarmAreaTiles();
+
+                foreach (Point tile in tiles)
+                {
+                    location.setTileProperty(tile.X, tile.Y, "Back", "Buildable", "true");
+                }
+            }
+        }
+
+        public static void UpdateSlimeArea()
+        {
+            if (ModEntry.Config.AllowBuildingInSlimeArea)
+            {
+                MakeSlimeAreaBuildable();
+            }
+            else
+            {
+                MakeSlimeAreaUnbuildable();
+            }
+        }
+
+        private static void MakeSlimeAreaUnbuildable()
+        {
+            GameLocation location = Game1.getLocationFromName("IslandWest");
+
+            if (location is not null)
+            {
+                HashSet<Point> tiles = GetSlimeAreaTiles();
+
+                foreach (Point tile in tiles)
+                {
+                    location.setTileProperty(tile.X, tile.Y, "Back", "Buildable", "f");
+                }
+            }
+        }
+
+        private static void MakeSlimeAreaBuildable()
+        {
+            GameLocation location = Game1.getLocationFromName("IslandWest");
+
+            if (location is not null)
+            {
+                HashSet<Point> tiles = GetSlimeAreaTiles();
+
+                foreach (Point tile in tiles)
+                {
+                    location.setTileProperty(tile.X, tile.Y, "Back", "Buildable", "true");
+                }
+            }
+        }
+
+        private static HashSet<Point> GetInaccessibleAreasTiles()
+        {
+            if (Compatibility.IsIslandOverhaulLoaded)
+            {
+                return TilesIslandOverhaulUtility.GetInaccessibleAreasTiles();
+            }
+            else if (Compatibility.IsModestMapsGingerIslandFarmLoaded)
+            {
+                return TilesModestMapsGingerIslandFarmUtility.GetInaccessibleAreasTiles();
+            }
+            else
+            {
+                return TilesDefaultUtility.GetInaccessibleAreasTiles();
+            }
+        }
+
+        private static HashSet<Point> GetFarmAreaTiles()
+        {
+            if (Compatibility.IsIslandOverhaulLoaded)
+            {
+                return TilesIslandOverhaulUtility.GetFarmAreaTiles();
+            }
+            else if (Compatibility.IsModestMapsGingerIslandFarmLoaded)
+            {
+                return TilesModestMapsGingerIslandFarmUtility.GetFarmAreaTiles();
+            }
+            else
+            {
+                return TilesDefaultUtility.GetFarmAreaTiles();
+            }
+        }
+
+        private static HashSet<Point> GetSlimeAreaTiles()
+        {
+            if (Compatibility.IsIslandOverhaulLoaded)
+            {
+                return TilesIslandOverhaulUtility.GetSlimeAreaTiles();
+            }
+            else if (Compatibility.IsModestMapsGingerIslandFarmLoaded)
+            {
+                return TilesModestMapsGingerIslandFarmUtility.GetSlimeAreaTiles();
+            }
+            else
+            {
+                return TilesDefaultUtility.GetSlimeAreaTiles();
+            }
+        }
+        
+        public static void RemoveShippingBin(IslandWest islandWest)
+		{
+			if (Game1.player.hasOrWillReceiveMail("Island_UpgradeHouse"))
+			{
+				Layer frontLayer = islandWest.Map.GetLayer("Front");
+				Layer buildingsLayer = islandWest.Map.GetLayer("Buildings");
+
+				frontLayer.Tiles[new(90, 38)] = null;
+				frontLayer.Tiles[new(91, 38)] = null;
+				buildingsLayer.Tiles[new(90, 39)] = null;
+				buildingsLayer.Tiles[new(91, 39)] = null;
+				islandWest.shippingBinPosition = new Point(0, 1);
+				typeof(IslandWest).GetMethod("resetLocalState", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(islandWest, null);
+				typeof(IslandWest).GetField("shippingBinLidOpenArea", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(islandWest, new Rectangle(islandWest.shippingBinPosition.X * Game1.tileSize, islandWest.shippingBinPosition.Y * Game1.tileSize, 0, 0));
+				typeof(IslandWest).GetField("shippingBinLid", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(islandWest, null);
+				if (!islandWest.modData.ContainsKey($"{ModEntry.ModManifest.UniqueID}_ShippingBin"))
+				{
+					islandWest.buildStructure(new ShippingBin(), new(90, 39), Game1.MasterPlayer, true);
+					islandWest.modData.Add($"{ModEntry.ModManifest.UniqueID}_ShippingBin", "T");
+				}
+			}
+		}
+    }
+}

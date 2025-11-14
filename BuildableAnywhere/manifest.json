@@ -1,0 +1,9 @@
+{
+	"Name": "Buildable Anywhere",
+	"Version": "1.0.0",
+	"Description": "Buildable Anywhere Buildings.",
+	"UniqueID": "Grigori22.BuildableAnywhere",
+	"EntryDll": "BuildableAnywhere.dll",
+	"MinimumApiVersion": "4.1.0",
+	"UpdateKeys": [ "Nexus:20600" ]
+}
